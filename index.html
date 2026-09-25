@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Scrapbook of Our Memories</title>
+    <!-- Google Fonts for Elegant Cursive & Clean Text -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Quicksand:wght@400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --card-bg: rgba(20, 10, 15, 0.85);
+            --text-color: #fce4ec;
+            --accent-color: #ff4081;
+            --border-color: rgba(255, 105, 180, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            font-family: 'Quicksand', sans-serif;
+            background: #110305;
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden; /* Controlled by slide container */
+        }
+
+        /* Full Screen Vertical Snap Slides */
+        .slides-container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            width: 100%;
+        }
+
+        .slide {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a0508, #2d0a12, #110305);
+            padding: 20px;
+            position: relative;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 30px 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            width: 100%;
+            max-width: 420px;
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Scroll indicator arrow */
+        .scroll-hint {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            animation: bounce 2s infinite;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0) translateX(-50%);}
+            40% {transform: translateY(-6px) translateX(-50%);}
+            60% {transform: translateY(-3px) translateX(-50%);}
+        }
+
+        /* Passcode Screen Styling */
+        #passcode-screen h2 {
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 8px;
+            font-size: 1.6rem;
+            color: #ff80ab;
+        }
+        .pin-dots {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .dot {
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--accent-color);
+            border-radius: 50%;
+            background: transparent;
+            transition: 0.3s;
+        }
+        .dot.active {
+            background: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .key {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            width: 52px;
+            height: 52px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            margin: 0 auto;
+            transition: 0.2s;
+        }
+        .key:active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        #main-content {
+            display: none;
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        /* Section Headers */
+        .section-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2.5rem;
+            color: #ff80ab;
+            margin-bottom: 15px;
+            font-weight: normal;
+        }
+
+        /* Polaroid Section */
+        .polaroid {
+            background: #fff;
+            padding: 8px 8px 22px 8px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            border-radius: 4px;
+            margin: 10px auto;
+            width: 75%;
+            transform: rotate(-2deg);
+        }
+        .polaroid:nth-child(even) {
+            transform: rotate(2deg);
+        }
+        .polaroid img {
+            width: 100%;
+            height: auto;
+            border-radius: 2px;
+        }
+        .polaroid-caption {
+            margin: 8px 0 0;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.8rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Letter Section */
+        .letter-text {
+            text-align: left;
+            font-size: 0.88rem;
+            line-height: 1.7;
+            white-space: pre-line;
+            color: #f8bbd0;
+            max-height: 55vh;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* Wish Cards Grid */
+        .wishes-grid {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .wish-box {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 12px 8px;
+            border-radius: 12px;
+            flex: 1;
+            font-size: 0.85rem;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .wish-box:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Accordions for 10 Things */
+        details {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            text-align: left;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #fff;
+        }
+        details[open] {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-color);
+        }
+        summary {
+            font-weight: 600;
+            color: #ff80ab;
+            cursor: pointer;
+        }
+        details p {
+            margin: 8px 0 0 0;
+            font-size: 0.8rem;
+            color: #e0e0e0;
+            line-height: 1.4;
+        }
+
+        /* Song Cards */
+        .song-card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 12px 14px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .song-info h4 {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #fff;
+        }
+        .song-info p {
+            margin: 3px 0 0;
+            font-size: 0.75rem;
+            color: #ff80ab;
+        }
+
+        button.action-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(255, 64, 129, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Audio (Lana Del Rey - Margaret vibe) -->
+    <audio id="bg-music" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf7f6.mp3?filename=romantic-ambient-piano-110821.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Passcode Initial Slide -->
+    <div class="slides-container" id="passcode-container">
+        <div class="slide">
+            <div class="card">
+                <h2>Enter Password 🤍</h2>
+                <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 10px;">Hint: Your 4-digit birthday (MMDD)</p>
+                <div class="pin-dots">
+                    <div class="dot" id="dot-0"></div>
+                    <div class="dot" id="dot-1"></div>
+                    <div class="dot" id="dot-2"></div>
+                    <div class="dot" id="dot-3"></div>
+                </div>
+                <div class="keypad">
+                    <button class="key" onclick="pressKey('1')">1</button>
+                    <button class="key" onclick="pressKey('2')">2</button>
+                    <button class="key" onclick="pressKey('3')">3</button>
+                    <button class="key" onclick="pressKey('4')">4</button>
+                    <button class="key" onclick="pressKey('5')">5</button>
+                    <button class="key" onclick="pressKey('6')">6</button>
+                    <button class="key" onclick="pressKey('7')">7</button>
+                    <button class="key" onclick="pressKey('8')">8</button>
+                    <button class="key" onclick="pressKey('9')">9</button>
+                    <button class="key" onclick="pressKey('0')">0</button>
+                </div>
+                <p id="error-msg" style="color: #ff5252; font-size: 0.8rem; margin-top: 10px; display: none;">Incorrect passcode, try again!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Slides Content (Unlocked) -->
+    <div id="main-content">
+        
+        <!-- Slide 1: Memories -->
+        <div class="slide">
+            <div class="card">
+                <div class="section-title">A Scrapbook of Our Memories</div>
+                <p style="font-size: 0.85rem; color: #f8bbd0; margin-bottom: 15px;">Happy Birthday, Ajibose Oreoluwa ❤️</p>
+                
+                <div class="polaroid">
+                    <img src="https://i.ibb.co/9kDPzTdP/IMG-1764.jpg" alt="Us 1">
+                    <p class="polaroid-caption">My favorite person ❤️</p>
+                </div>
+                <div class="polaroid">
+                    <img src="https://i.ibb.co/DP8bfGxN/IMG-5786.jpg" alt="Us 2">
+                    <p class="polaroid-caption">Unforgettable moments ✨</p>
+                </div>
+            </div>
+            <div class="scroll-hint">Swipe Down ↓</div>
+        </div>
+
+        <!-- Slide 2: Letter -->
+        <div class="slide">
+            <div class="card">
+                <div class="section-title" style="font-size: 2.2rem;">Dearest,</div>
+                <div class="letter-text">
+Happy birthday, my love. I have been waiting all year to say this to you in a place that is only ours, where every word is written slowly and every moment matters.
+
+Thank you for the mornings you make lighter, the nights you make softer, and every ordinary hour in between that you turn into something special. 
+
+Whenever you call me Oko Mii, my entire world instantly brightens up. Thank you for loving me the way you do.
+
+Today is yours. Eat the cake, play the songs, and know that you are deeply, endlessly loved.
+
+Forever yours,
+Fawaz 🤍
+                </div>
+            </div>
+            <div class="scroll-hint">Swipe Down ↓</div>
+        </div>
+
+        <!-- Slide 3: Songs -->
+        <div class="slide">
+            <div class="card">
+                <div class="section-title">Our Songs</div>
+                
+                <div class="song-card">
+                    <div class="song-info">
+                        <h4>Marry You</h4>
+                        <p>Bruno Mars</p>
+                    </div>
+                </div>
+                <div class="song-card">
+                    <div class="song-info">
+                        <h4>So My Darling</h4>
+                        <p>Rachel Chinouriri</p>
+                    </div>
+                </div>
+                <div class="song-card">
+                    <div class="song-info">
+                        <h4>I Guess I’m in Love</h4>
+                        <p>Clinton Kane</p>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-hint">Swipe Down ↓</div>
+        </div>
+
+        <!-- Slide 4: Cake / Wish -->
+        <div class="slide">
+            <div class="card" id="cake-card">
+                <div class="section-title" style="font-size: 2.2rem;">Make a Wish</div>
+                <p style="font-size: 0.85rem; color: #aaa;">Blow out the candles!</p>
+                <div style="font-size: 3rem; margin: 15px 0;" id="cake-emoji">🎂 🕯️🕯️🕯️</div>
+                <button class="action-btn" onclick="blowCandles()">Blow Candles</button>
+            </div>
+            <div class="scroll-hint">Swipe Down ↓</div>
+        </div>
+
+        <!-- Slide 5: 10 Things -->
+        <div class="slide">
+            <div class="card" style="max-height: 85vh;">
+                <div class="section-title" style="font-size: 2rem;">10 Things I Love About You</div>
+                <details><summary>1. Your Good Morning messages</summary><p>The first thing I look forward to on my screen, half awake and still smiling.</p></details>
+                <details><summary>2. The Way You Laugh at My Jokes</summary><p>Even when they are terrible, you always laugh and make me feel hilarious.</p></details>
+                <details><summary>3. How Softly You Call Me</summary><p>The way you say Oko Mii or Baby melts me every single time.</p></details>
+                <details><summary>4. Your Stubborn Kindness</summary><p>You keep choosing to be gentle with people, which takes incredible strength.</p></details>
+                <details><summary>5. Your Playlists</summary><p>Songs are how you say things that are too big for texts. I listen to them constantly.</p></details>
+                <details><summary>6. Excitement Over Small Things</summary><p>It is impossible not to smile watching you get happy over little details.</p></details>
+                <details><summary>7. How You Take Care of People</summary><p>You quietly notice when someone is uncomfortable and make sure they're okay.</p></details>
+                <details><summary>8. Your Honesty</summary><p>You never let me guess where I stand. With you, I am safe to be real.</p></details>
+                <details><summary>9. Your Cute Focus</summary><p>Whether working or figuring something out, your focus is adorable.</p></details>
+                <details><summary>10. Just You Existing</summary><p>Everything about who you are makes my life infinitely better.</p></details>
+            </div>
+            <div class="scroll-hint">Swipe Down ↓</div>
+        </div>
+
+        <!-- Slide 6: Outro -->
+        <div class="slide">
+            <div class="card" style="text-align: center; padding: 45px 20px;">
+                <div class="section-title">I love you, forever.</div>
+                <p style="font-family: 'Great Vibes', cursive; font-size: 1.6rem; color: #ff80ab; margin-top: 10px;">Yours, for life. 🤍</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const correctPin = "1111"; // Change to her actual MMDD
+        let enteredPin = "";
+
+        function pressKey(num) {
+            if (enteredPin.length < 4) {
+                enteredPin += num;
+                updateDots();
+            }
+
+            if (enteredPin.length === 4) {
+                if (enteredPin === correctPin) {
+                    // Play background music upon correct passcode entry
+                    const music = document.getElementById('bg-music');
+                    music.volume = 0.5;
+                    music.play().catch(e => console.log("Audio play blocked:", e));
+
+                    // Switch screens to slide mode
+                    document.getElementById('passcode-container').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                } else {
+                    document.getElementById('error-msg').style.display = 'block';
+                    setTimeout(() => {
+                        enteredPin = "";
+                        updateDots();
+                        document.getElementById('error-msg').style.display = 'none';
+                    }, 1000);
+                }
+            }
+        }
+
+        function updateDots() {
+            for (let i = 0; i < 4; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                if (i < enteredPin.length) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            }
+        }
+
+        function blowCandles() {
+            document.getElementById('cake-emoji').innerHTML = "🎂 ✨🎉";
+            document.getElementById('cake-card').querySelector('p').innerText = "Your wishes have been sent to the universe! ❤️";
+            event.target.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
